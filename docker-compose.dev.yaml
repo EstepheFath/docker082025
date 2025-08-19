@@ -1,0 +1,20 @@
+# docker-compose.dev.ps1.yml
+version: "3.9"
+
+services:
+  frontend:
+    build:
+      context: ./bibliflow_frontend
+      dockerfile: Dockerfile.dev
+      target: ""
+    container_name: bibliflow_frontend_dev
+    command: ["npx", "ng", "serve", "--host", "0.0.0.0", "--port", "4200", "--proxy-config", "proxy.conf.json", "--poll=2000"]
+    environment:
+      - CHOKIDAR_USEPOLLING=1
+    volumes:
+      - ./bibliflow_frontend:/app:delegated          # bind mount du code source (host -> container)
+      - /app/node_modules                             # volume anonyme pour node_modules (évite override)
+    ports:
+      - "4200:4200"
+    depends_on:
+      - backend
