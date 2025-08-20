@@ -4,5 +4,5 @@ services:
   frontend:
     build:
       context: ./bibliflow_frontend
-      dockerfile: Dockerfile.ci
+      dockerfile: Dockerfile
     command: ["npm", "run", "test:ci"]
