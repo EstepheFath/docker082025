@@ -1,0 +1,8 @@
+version: "3.9"
+
+services:
+  frontend:
+    build:
+      context: ./bibliflow_frontend
+      dockerfile: Dockerfile.ci
+    command: ["npm", "run", "test:ci"]
