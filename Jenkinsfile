@@ -14,13 +14,13 @@ pipeline {
 
         stage('Build Frontend') {
             steps {
-                sh 'docker compose -f docker-compose.yaml -f docker-compose.ci.yaml build frontend'
+                sh 'docker-compose -f docker-compose.yaml -f docker-compose.ci.yaml build frontend'
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'docker compose -f docker-compose.yaml -f docker-compose.ci.yaml run --rm frontend npm run test:ci'
+                sh 'docker-compose -f docker-compose.yaml -f docker-compose.ci.yaml run --rm frontend npm run test:ci'
             }
         }
     }
