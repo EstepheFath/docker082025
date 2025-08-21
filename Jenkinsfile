@@ -6,6 +6,10 @@ pipeline {
         SONAR_TOKEN = credentials('sonar-token-id') // ton token Sonar enregistré dans Jenkins
     }
 
+    tools {
+            nodejs "Node 24" // le nom que tu as donné dans la config globale
+        }
+
     stages {
         stage('Checkout') {
             steps {
