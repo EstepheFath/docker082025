@@ -1,25 +1,24 @@
-# Dockerfile.jenkins
 FROM jenkins/jenkins:lts
 
-# basculer en root pour installer paquets
 USER root
 
-# installer utilitaires + Node.js 20 via NodeSource
-RUN apt-get update && \
-    apt-get install -y wget unzip curl git gnupg2 ca-certificates apt-transport-https && \
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y nodejs && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+# Installer utilitaires, docker cli, docker-compose, node, npm, openjdk-17
+RUN apt-get update && apt-get install -y \
+    ca-certificates curl gnupg2 lsb-release wget unzip git \
+    docker.io docker-compose nodejs npm openjdk-17-jdk-headless \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Installer SonarScanner (version binaire)
-RUN wget -q https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.15.0.38196-linux.zip -O /tmp/sonar-scanner.zip && \
-    unzip /tmp/sonar-scanner.zip -d /opt && \
-    ln -sf /opt/sonar-scanner-5.15.0.38196-linux/bin/sonar-scanner /usr/local/bin/sonar-scanner && \
-    rm /tmp/sonar-scanner.zip
+# Ajouter jenkins au groupe docker
+RUN usermod -aG docker jenkins
 
-# Revenir à l'utilisateur jenkins
+# Créer les répertoires nécessaires avec les bonnes permissions
+RUN mkdir -p /var/jenkins_home/workspace \
+             /var/jenkins_home/tmp \
+             /workspace && \
+    chown -R jenkins:jenkins /var/jenkins_home /workspace && \
+    chmod -R 755 /var/jenkins_home /workspace
+
+# Revenir à jenkins
 USER jenkins
-
 WORKDIR /var/jenkins_home
 EXPOSE 8080 50000
-ENTRYPOINT ["/sbin/tini", "--", "/usr/local/bin/jenkins.sh"]
