@@ -32,7 +32,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('sonar-server') {
+                withSonarQubeEnv('jenkins_sonar') {
                     sh 'sonar-scanner -Dsonar.projectKey=projet-xyz -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=$SONAR_TOKEN'
                 }
             }
