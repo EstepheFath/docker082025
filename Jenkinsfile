@@ -19,7 +19,7 @@ pipeline {
 
         stage('Build Backend') {
             steps {
-                dir('backend') {
+                dir('bibliflow_backend') {
                     sh 'npm install'
                     sh 'npm run build'
                 }
@@ -29,7 +29,7 @@ pipeline {
 
         stage('Build Frontend') {
             steps {
-                dir('frontend') {
+                dir('bibliflow_frontend') {
                     sh 'npm install'
                     sh 'npm run build'
                 }
