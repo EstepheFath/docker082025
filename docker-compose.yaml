@@ -1,8 +1,33 @@
-version: "3.9"
-
 services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: bibliflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./bibliflow_backend
+    container_name: backend
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+
+  frontend:
+    build: ./bibliflow_frontend
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
   jenkins:
-    image: my-jenkins
+    image: my-jenkins:latest
     container_name: jenkins
     ports:
       - "8080:8080"
@@ -11,43 +36,27 @@ services:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
       - ./:/workspace
-    user: root
-
-
-  postgres:
-    image: postgres:14
-    container_name: postgres
-    environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: mydb
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-
-  frontend:
-    build:
-      context: ./bibliflow_frontend
-      dockerfile: Dockerfile
-    container_name: frontend
-    ports:
-      - "3000:3000"
-    depends_on:
-      - backend
-
-  backend:
-    build:
-      context: ./bibliflow_backend
-      dockerfile: Dockerfile
-    container_name: backend
-    ports:
-      - "8000:8000"
-    environment:
-      DATABASE_URL: postgres://myuser:mypassword@postgres:5432/mydb
     depends_on:
       - postgres
+      - backend
+      - frontend
+      - sonarqube
+
+  sonarqube:
+    image: sonarqube:latest
+    container_name: sonarqube
+    ports:
+      - "9000:9000"
+    environment:
+      - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
 
 volumes:
+  postgres_data:
   jenkins_home:
-  pgdata:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:

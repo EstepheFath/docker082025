@@ -1,39 +1,60 @@
 pipeline {
-  agent any
+    agent any
 
-  stages {
-    stage('Checkout') {
-      steps {
-        checkout scm
-      }
+    environment {
+        SONARQUBE = 'sonar-server' // nom du serveur SonarQube dans Jenkins
+        SONAR_TOKEN = credentials('sonar-token-id') // ton token Sonar enregistré dans Jenkins
     }
 
-    stage('Build Frontend') {
-      steps {
-        dir('/workspace') {
-          // build uniquement le frontend (ajuste --parallel si tu veux)
-          sh 'docker-compose -f /workspace/docker-compose.yaml -f /workspace/docker-compose.ci.yaml build --parallel frontend'
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/ton-repo.git'
+            }
         }
-      }
-    }
 
-    stage('Optional: Build Backend') {
-      steps {
-        dir('/workspace') {
-          // décommente si tu veux builder backend aussi
-          // sh 'docker-compose -f /workspace/docker-compose.yaml -f /workspace/docker-compose.ci.yaml build backend'
-          echo 'Backend build skipped (comment/uncomment the command if needed)'
+        stage('Build Backend') {
+            steps {
+                dir('backend') {
+                    sh './mvnw clean install'
+                }
+            }
         }
-      }
-    }
-  }
 
-  post {
-    always {
-      dir('/workspace') {
-        // tidy up optional: supprime containers créés par erreur (safe)
-        sh 'docker-compose -f /workspace/docker-compose.yaml -f /workspace/docker-compose.ci.yaml down --remove-orphans || true'
-      }
+        stage('Build Frontend') {
+            steps {
+                dir('frontend') {
+                    sh 'npm install'
+                    sh 'npm run build'
+                }
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sonar-server') {
+                    sh 'sonar-scanner -Dsonar.projectKey=projet-xyz -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=$SONAR_TOKEN'
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
     }
-  }
+
+    post {
+        always {
+            echo 'Pipeline finished'
+        }
+        failure {
+            mail to: 'ton.email@exemple.com',
+                 subject: "Build failed: ${currentBuild.fullDisplayName}",
+                 body: "Voir le build Jenkins : ${env.BUILD_URL}"
+        }
+    }
 }
