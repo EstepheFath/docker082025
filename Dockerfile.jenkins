@@ -1,10 +1,4 @@
 FROM jenkins/jenkins:lts
 USER root
-RUN apt-get update && apt-get install -y docker.io docker-compose wget unzip curl gnupg && \
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y nodejs && \
-    wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.9.3.7315-linux.zip && \
-    unzip sonar-scanner-cli-4.9.3.7315-linux.zip -d /opt && \
-    rm sonar-scanner-cli-4.9.3.7315-linux.zip && \
-    echo 'export PATH=$PATH:/opt/sonar-scanner-4.9.3.7315-linux/bin' >> /etc/profile
+RUN apt-get update && apt-get install -y docker.io docker-compose curl gnupg && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && apt-get install -y nodejs && npm install -g sonar-scanner
 USER jenkins
