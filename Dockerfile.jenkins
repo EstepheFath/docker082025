@@ -1,5 +1,10 @@
-# Utilise l'image officielle Jenkins LTS
 FROM jenkins/jenkins:lts
 USER root
-RUN apt-get update && apt-get install -y docker.io docker-compose wget unzip curl gnupg && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && apt-get install -y nodejs && wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.9.3.7315-linux.zip && unzip sonar-scanner-cli-4.9.3.7315-linux.zip -d /opt && ln -s /opt/sonar-scanner-4.9.3.7315-linux/bin/sonar-scanner /usr/local/bin/sonar-scanner && rm sonar-scanner-cli-4.9.3.7315-linux.zip
+RUN apt-get update && apt-get install -y docker.io docker-compose wget unzip curl gnupg && \
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs && \
+    wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.9.3.7315-linux.zip && \
+    unzip sonar-scanner-cli-4.9.3.7315-linux.zip -d /opt && \
+    rm sonar-scanner-cli-4.9.3.7315-linux.zip && \
+    echo 'export PATH=$PATH:/opt/sonar-scanner-4.9.3.7315-linux/bin' >> /etc/profile
 USER jenkins
