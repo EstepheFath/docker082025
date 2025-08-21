@@ -16,10 +16,12 @@ pipeline {
         stage('Build Backend') {
             steps {
                 dir('backend') {
-                    sh './mvnw clean install'
+                    sh 'npm install'
+                    sh 'npm run build'
                 }
             }
         }
+
 
         stage('Build Frontend') {
             steps {
