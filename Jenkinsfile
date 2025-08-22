@@ -2,13 +2,14 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE = 'sonar-server' // nom du serveur SonarQube dans Jenkins
-        SONAR_TOKEN = credentials('SonarQube) // ton token Sonar enregistré dans Jenkins
+        // Remplace 'sonar-token-id' par l'ID exact de ton credential de type "Secret Text" dans Jenkins
+        SONAR_TOKEN = credentials('sonar-token-id')
     }
 
     tools {
-            nodejs "Node 24" // le nom que tu as donné dans la config globale
-        }
+        // Assure-toi que "Node 24" existe dans Manage Jenkins -> Global Tool Configuration
+        nodejs "Node 24"
+    }
 
     stages {
         stage('Checkout') {
@@ -26,7 +27,6 @@ pipeline {
             }
         }
 
-
         stage('Build Frontend') {
             steps {
                 dir('bibliflow_frontend') {
@@ -38,7 +38,8 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQube') {
+                // Remplace 'sonar-server' par le nom de l'instance SonarQube configurée dans Jenkins (Manage Jenkins -> Configure System -> SonarQube installations)
+                withSonarQubeEnv('sonar-server') {
                     sh 'sonar-scanner -Dsonar.projectKey=projet-xyz -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=$SONAR_TOKEN'
                 }
             }
