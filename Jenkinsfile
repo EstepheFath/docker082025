@@ -32,13 +32,21 @@ pipeline {
         }
 
         stage('SonarQube') {
-          steps {
-            script {
-              sh 'docker run --rm -v $(pwd):/usr/src -w /usr/src sonarsource/sonar-scanner-cli:latest -Dsonar.projectKey=projet-xyz -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN'
+            steps {
+                script {
+                    sh '''
+                        docker run --rm \
+                          -v $(pwd):/usr/src \
+                          -w /usr/src \
+                          sonarsource/sonar-scanner-cli:latest \
+                          -Dsonar.projectKey=projet-xyz \
+                          -Dsonar.sources=. \
+                          -Dsonar.host.url=http://sonarqube:9000 \
+                          -Dsonar.login=$SONAR_TOKEN
+                    '''
+                }
             }
-          }
         }
-
 
         stage('Quality Gate') {
             steps {
