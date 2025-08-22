@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // Remplace 'sonar-token-id' par l'ID exact de ton credential de type "Secret Text" dans Jenkins
-        SONAR_TOKEN = credentials('sonar-token-id')
+        SONAR_TOKEN = credentials('SonarQube')
     }
 
     tools {
@@ -36,7 +36,7 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
+        stage('SonarQube') {
             steps {
                 // Remplace 'sonar-server' par le nom de l'instance SonarQube configurée dans Jenkins (Manage Jenkins -> Configure System -> SonarQube installations)
                 withSonarQubeEnv('sonar-server') {
