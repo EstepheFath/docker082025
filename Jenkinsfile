@@ -31,21 +31,14 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-            steps {
-                // Utilise l'installation SonarQube nommée "SonarQube" (case-sensitive)
-                withSonarQubeEnv('SonarQube') {
-                    script {
-                        // Exécute le scanner dans un conteneur (pas besoin d'installer sonar-scanner sur l'agent)
-                        docker.image('sonarsource/sonar-scanner-cli:latest').inside {
-                            // IMPORTANT : on utilise des quotes simples pour que $SONAR_HOST_URL et $SONAR_AUTH_TOKEN
-                            // soient évalués dans le conteneur (variables injectées par withSonarQubeEnv)
-                            sh 'sonar-scanner -Dsonar.projectKey=projet-xyz -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_AUTH_TOKEN'
-                        }
-                    }
-                }
+        stage('SonarQube') {
+          steps {
+            script {
+              sh 'docker run --rm -v $(pwd):/usr/src -w /usr/src sonarsource/sonar-scanner-cli:latest -Dsonar.projectKey=projet-xyz -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN'
             }
+          }
         }
+
 
         stage('Quality Gate') {
             steps {
