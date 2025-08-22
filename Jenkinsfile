@@ -39,7 +39,7 @@ pipeline {
         stage('SonarQube') {
             steps {
                 // Remplace 'sonar-server' par le nom de l'instance SonarQube configurée dans Jenkins (Manage Jenkins -> Configure System -> SonarQube installations)
-                withSonarQubeEnv('sonar-server') {
+                withSonarQubeEnv('SonarQube') {
                     sh 'sonar-scanner -Dsonar.projectKey=projet-xyz -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=$SONAR_TOKEN'
                 }
             }
