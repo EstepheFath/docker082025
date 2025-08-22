@@ -13,12 +13,6 @@ pipeline {
             }
         }
 
-        stage('Checkout') {
-            steps {
-                git branch: 'master', url: 'https://github.com/EstepheFath/docker082025.git'
-            }
-        }
-
         stage('Build Backend') {
             steps {
                 dir('bibliflow_backend') {
