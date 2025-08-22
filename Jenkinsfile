@@ -1,14 +1,9 @@
 pipeline {
     agent any
 
-    environment {
-        // Remplace 'sonar-token-id' par l'ID exact de ton credential de type "Secret Text" dans Jenkins
-        SONAR_TOKEN = credentials('SonarQube')
-    }
-
     tools {
-        // Assure-toi que "Node 24" existe dans Manage Jenkins -> Global Tool Configuration
-        nodejs "Node 24"
+        // Vérifie que 'Node 24' existe dans Manage Jenkins -> Global Tool Configuration
+        nodejs 'Node 24'
     }
 
     stages {
@@ -36,11 +31,18 @@ pipeline {
             }
         }
 
-        stage('SonarQube') {
+        stage('SonarQube Analysis') {
             steps {
-                // Remplace 'sonar-server' par le nom de l'instance SonarQube configurée dans Jenkins (Manage Jenkins -> Configure System -> SonarQube installations)
+                // Utilise l'installation SonarQube nommée "SonarQube" (case-sensitive)
                 withSonarQubeEnv('SonarQube') {
-                    sh 'sonar-scanner -Dsonar.projectKey=projet-xyz -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=$SONAR_TOKEN'
+                    script {
+                        // Exécute le scanner dans un conteneur (pas besoin d'installer sonar-scanner sur l'agent)
+                        docker.image('sonarsource/sonar-scanner-cli:latest').inside {
+                            // IMPORTANT : on utilise des quotes simples pour que $SONAR_HOST_URL et $SONAR_AUTH_TOKEN
+                            // soient évalués dans le conteneur (variables injectées par withSonarQubeEnv)
+                            sh 'sonar-scanner -Dsonar.projectKey=projet-xyz -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_AUTH_TOKEN'
+                        }
+                    }
                 }
             }
         }
@@ -48,6 +50,7 @@ pipeline {
         stage('Quality Gate') {
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
+                    // attend le résultat du Quality Gate (nécessite le plugin SonarQube)
                     waitForQualityGate abortPipeline: true
                 }
             }
