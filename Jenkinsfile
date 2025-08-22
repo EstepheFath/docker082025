@@ -6,13 +6,6 @@ pipeline {
     }
 
     stages {
-        stage('Clean') {
-            steps {
-                // Nettoie le workspace avant chaque build
-                cleanWs()
-            }
-        }
-
         stage('Build Backend') {
             steps {
                 dir('bibliflow_backend') {
@@ -55,11 +48,6 @@ pipeline {
     post {
         always {
             echo 'Pipeline finished'
-        }
-        failure {
-            mail to: 'ton.email@exemple.com',
-                 subject: "Build failed: ${currentBuild.fullDisplayName}",
-                 body: "Voir le build Jenkins : ${env.BUILD_URL}"
         }
     }
 }
