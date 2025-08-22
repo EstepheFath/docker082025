@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         SONARQUBE = 'sonar-server' // nom du serveur SonarQube dans Jenkins
-        SONAR_TOKEN = credentials('sonar-token-id') // ton token Sonar enregistré dans Jenkins
+        SONAR_TOKEN = credentials('SonarQube) // ton token Sonar enregistré dans Jenkins
     }
 
     tools {

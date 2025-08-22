@@ -9,6 +9,8 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - bibliflow_network
 
   backend:
     build: ./bibliflow_backend
@@ -17,6 +19,8 @@ services:
       - "5000:5000"
     depends_on:
       - postgres
+    networks:
+      - bibliflow_network
 
   frontend:
     build: ./bibliflow_frontend
@@ -25,28 +29,31 @@ services:
       - "3000:3000"
     depends_on:
       - backend
+    networks:
+      - bibliflow_network
 
   jenkins:
     build:
       context: .
       dockerfile: Dockerfile.jenkins
     container_name: jenkins
-    user: "1000:1000"  # Ajustez selon votre UID:GID
     ports:
       - "8080:8080"
       - "50000:50000"
     volumes:
       - jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./:/workspace:rw  # Permissions lecture/écriture explicites
+      - ./:/workspace:rw
     environment:
-      - JENKINS_OPTS=--tempDir=/var/jenkins_home/tmp
       - JAVA_OPTS=-Djava.awt.headless=true -Xmx1024m
+    restart: unless-stopped
     depends_on:
       - postgres
       - backend
       - frontend
       - sonarqube
+    networks:
+      - bibliflow_network
 
   sonarqube:
     image: sonarqube:latest
@@ -59,6 +66,8 @@ services:
       - sonarqube_data:/opt/sonarqube/data
       - sonarqube_extensions:/opt/sonarqube/extensions
       - sonarqube_logs:/opt/sonarqube/logs
+    networks:
+      - bibliflow_network
 
 volumes:
   postgres_data:
@@ -66,3 +75,7 @@ volumes:
   sonarqube_data:
   sonarqube_extensions:
   sonarqube_logs:
+
+networks:
+  bibliflow_network:
+    driver: bridge
