@@ -7,7 +7,7 @@ pipeline {
     }
 
     environment {
-        // remplacer 'SonarQube' par l'ID de ton credential de type "Secret text" contenant le token Sonar
+        // Remplace 'SonarQube' par l'ID de ton credential "Secret text" contenant le token Sonar
         SONAR_TOKEN = credentials('SonarQube')
         // URL de Sonar (depuis un conteneur Docker sur Windows, host.docker.internal pointe vers l'hôte)
         SONAR_HOST = 'http://host.docker.internal:9000'
@@ -58,7 +58,7 @@ pipeline {
                     sh """
                       docker run --rm \
                         -v "\$PWD":/usr/src -w /usr/src \
-                        -e SONAR_TOKEN=${SONAR_TOKEN} \
+                        -e SONAR_TOKEN='${SONAR_TOKEN}' \
                         sonarsource/sonar-scanner-cli:latest \
                         -D "sonar.projectKey=projet-xyz" \
                         -D "sonar.sources=." \
